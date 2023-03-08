@@ -128,6 +128,7 @@ vcftools --vcf dirofilaria_immitis.cohort.allsites.nuclearINVARIANTs.vcf --remov
 ```
 
 Filtering has an strong effect int the invarins and does not work so well
+
 Some guides reocommned not to apply pop genomics filters for invariants
 
 #### In any way, lets merge the nuclear invariants with nuclear SNPs
