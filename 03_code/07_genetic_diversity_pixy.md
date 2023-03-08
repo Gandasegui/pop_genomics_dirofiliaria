@@ -253,7 +253,13 @@ library(ggsci)
 library(ggpubr)
 library(patchwork)
 library(ggridges)
+```
+
+### Nucleotide diversity (pi)
+
+```R
 ##### PI #####
+
 # get nucleotide diversity (pi) data from pixy output
 pi_data <- read.table("data/country_pi.txt", header=T)
 pi_data$chromosome <- str_remove(pi_data$chromosome, 'dirofilaria_immitis_')
@@ -343,10 +349,10 @@ plot_2 <- ggplot(pi_data, aes(avg_pi, chr_type, fill=chr_type), guide="none") +
 # bring it together
 plot_1 + plot_2 +  plot_layout(widths = c(5, 1))
 ggsave("plots_genomewide_and_density_Pi.png", width=9, height=6)
+```
+### Dxy and Fst
 
-#
-
-#####DXY and FST######
+```R
 # load data
 dxy_data <- read.table("data/country_dxy.txt", header=T)
 fst_data <- read.table("data/country_fst.txt", header=T)
@@ -445,7 +451,7 @@ plot_1 <- data %>%
   labs(x="Genomic Position", y="Fst")
 
 
-# plot 2 - density plots of pi per group
+# plot 2 - density plots of Fst per group
 plot_2 <- data %>%
   filter(data_type=='Fst')%>%
   ggplot(aes(value, chr_type, fill=chr_type), guide="none") +
@@ -458,4 +464,4 @@ plot_2 <- data %>%
 # bring it together
 plot_1 + plot_2 +  plot_layout(widths = c(5, 1))
 ggsave("plots_genomewide_and_density_fst.png", width=9, height=6)
-``
+```
