@@ -673,47 +673,10 @@ fun_plot_missingness_sampletype(data_wb, "wb_variants")
 ```
 
 It is variable and as expected, some of the sample from Quesland provided high missingess
-So, let's remove the following samples for each of the variant subset
-
-#### From nuclear dataset
-AUS_QUE_MFP_001
-AUS_QUE_MFP_002
-AUS_QUE_MFP_003
-AUS_QUE_MFP_004
-AUS_QUE_MFP_005
-AUS_QUE_MFP_006
-AUS_QUE_MFP_007
-AUS_QUE_MFP_008
-AUS_QUE_MFP_009
-AUS_QUE_MFP_010
-AUS_QUE_MFP_011
-AUS_QUE_MFP_012
-CHN_SIC_RNA_001
-
-#### From mitohondrial dataset, we will remove
-AUS_QUE_MFP_007
-AUS_QUE_MFP_012
-
-#### From Wb dataset
-AUS_QUE_MFP_001
-AUS_QUE_MFP_002
-AUS_QUE_MFP_003
-AUS_QUE_MFP_004
-AUS_QUE_MFP_005
-AUS_QUE_MFP_006
-AUS_QUE_MFP_007
-AUS_QUE_MFP_008
-AUS_QUE_MFP_009
-AUS_QUE_MFP_010
-AUS_QUE_MFP_011
-AUS_QUE_MFP_012
-USA_ARK_MFP_001
-USA_TEN_MFP_001
-USA_TEX_MFP_001
-
 So now we will generate different sample list for each database and ten evaluate max missiness
 
-### For nuclear (n=19) - nuclear_samplelist.keep
+```bash
+# For nuclear (n=19) - nuclear_samplelist.keep
 AUS_NSW_AD_001
 AUS_NSW_AD_002
 AUS_NSW_AD_003
@@ -733,7 +696,7 @@ USA_MCH_MFP_001
 USA_MIP_MFS_001
 USA_TEN_MFP_001
 USA_TEX_MFP_001
-#### For mithochondiral (n=30) - mito_samplelist.keep
+# For mithochondiral (n=30) - mito_samplelist.keep
 AUS_NSW_AD_001
 AUS_NSW_AD_002
 AUS_NSW_AD_003
@@ -764,7 +727,7 @@ USA_MCH_MFP_001
 USA_MIP_MFS_001
 USA_TEN_MFP_001
 USA_TEX_MFP_001
-#### For wb (n=16) - wb_samplelist.keep
+# For wb (n=16) - wb_samplelist.keep
 AUS_NSW_AD_001
 AUS_NSW_AD_002
 AUS_NSW_AD_003
@@ -782,7 +745,7 @@ USA_LOU_MFP_001
 USA_LOU_MFS_001
 USA_MCH_MFP_001
 USA_MIP_MFS_001
-
+```
 ### Once we selected those samples with low missiness, let's check different thresholds for each dataset
 
 ```bash
@@ -849,7 +812,7 @@ done
 #After filtering, kept 17 out of 32 Individuals
 #After filtering, kept 0 out of a possible 50 Sites
 ```
-Selecting a max missingness of 0.8 for uclear and mito, and 0.7 for Wb is sensible
+Selecting a max missingness of 0.8 for nuclear and mito, and 0.7 for Wb is sensible
 
 ```bash
 mkdir ../../FINAL_SETS/
