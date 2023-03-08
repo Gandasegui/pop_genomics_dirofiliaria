@@ -131,7 +131,7 @@ Filtering has an strong effect int the invarins and does not work so well
 
 Some guides reocommned not to apply pop genomics filters for invariants
 
-#### In any way, lets merge the nuclear invariants with nuclear SNPs
+#### In any way, lets merge the nuclear invariants with nuclear SNPs previously filtered
 
 ```bash
 #Keep only the 19 samples of the nuclear dataset and then merge with the SNPs-INDELs
@@ -165,7 +165,7 @@ tabix -p vcf nuclearSNPssandINVARIANTs.chrxto4.recode.vcf.gz
 mv nuclearSNPssandINVARIANTs.chrxto4.recode.vcf.* ../FINAL_SETS/
 ```
 
-## Now, we run pixy using that fileç
+## Now, we run pixy using that file
 
 ```bash
 #Create and set the environment
