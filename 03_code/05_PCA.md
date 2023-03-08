@@ -84,10 +84,14 @@ We have obeserved some substructure that can be due to seq noise
 We will findout what is going on
 
 ### Let's use SNPs freqfr PCA and extract tecnical information:
-*Sample type (pooled or single)
-*Depth
-*Missingness
-*Heterozygosity (inbreeding coeficient)
+
+-Sample type (pooled or single)
+
+-Depth
+
+-Missingness
+
+-Heterozygosity (inbreeding coeficient)
 
 ```R
 #Now we load the vcf file, just to understand the structure
