@@ -349,6 +349,18 @@ plot_2 <- ggplot(pi_data, aes(avg_pi, chr_type, fill=chr_type), guide="none") +
 # bring it together
 plot_1 + plot_2 +  plot_layout(widths = c(5, 1))
 ggsave("plots_genomewide_and_density_Pi.png", width=9, height=6)
+
+#Now a boxplot of the pi value per population
+ggplot(pi_data, aes(pop, avg_pi, col=pop)) +
+  geom_jitter(size = 1, alpha = 0.5) +
+  geom_boxplot(fill=NA, col="black", outline=FALSE) +
+  labs(x = "Population" , y = "Nucleotide diversity (Pi)", colour = "Population") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  scale_color_npg() +
+  ylim(0, 0.003)
+
+ggsave("plots_boxplot_pop_Pi.png", width=4, height=4)
 ```
 ### Dxy and Fst
 
