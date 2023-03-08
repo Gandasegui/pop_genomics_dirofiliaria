@@ -250,138 +250,172 @@ bsub.py --done "select_WbINDELs"  1 select_mitoINDELs_table "gatk VariantsToTabl
 ### Make some density plots of the data and get quantiles in R
 
 ```R
-library('ggplot2')
+# load libraries
 library(patchwork)
 require(data.table)
 library(tidyverse)
 library(gridExtra)
 
-VCF_nuclear_snps <- fread('GVCFall_nuclearSNPs.table', header = TRUE, fill=TRUE, na.strings=c("","NA"), sep = "\t")
+VCF_nuclear_snps <- fread('data/GVCFall_nuclearSNPs.table', header = TRUE, fill=TRUE, na.strings=c("","NA"), sep = "\t")
 VCF_nuclear_snps <- sample_frac(VCF_nuclear_snps, 0.2)
-#VCF_nuclear_indels <- fread('GVCFall_nuclearINDELs.table', header = TRUE, fill=TRUE, na.strings=c("","NA"), sep = "\t")
-#VCF_nuclear_indels <- sample_frac(VCF_nuclear_indels, 0.2)
+VCF_nuclear_indels <- fread('data/GVCFall_nuclearINDELs.table', header = TRUE, fill=TRUE, na.strings=c("","NA"), sep = "\t")
+VCF_nuclear_indels <- sample_frac(VCF_nuclear_indels, 0.2)
 dim(VCF_nuclear_snps)
-#dim(VCF_nuclear_indels)
-#VCF_nuclear <- rbind(VCF_nuclear_snps, VCF_nuclear_indels)
-#VCF_nuclear$Variant <- factor(c(rep("SNPs", dim(VCF_nuclear_snps)[1]), rep("Indels", dim(VCF_nuclear_indels)[1])))
+dim(VCF_nuclear_indels)
+VCF_nuclear <- rbind(VCF_nuclear_snps, VCF_nuclear_indels)
+VCF_nuclear$Variant <- factor(c(rep("SNPs", dim(VCF_nuclear_snps)[1]), rep("Indels", dim(VCF_nuclear_indels)[1])))
 
-VCF_mito_snps <- fread('GVCFall_mitoSNPs.table', header = TRUE, fill=TRUE, na.strings=c("","NA"), sep = "\t")
-#VCF_mito_indels <- fread('GVCFall_mitoINDELs.table', header = TRUE, fill=TRUE, na.strings=c("","NA"), sep = "\t")
+VCF_mito_snps <- fread('data/GVCFall_mitoSNPs.table', header = TRUE, fill=TRUE, na.strings=c("","NA"), sep = "\t")
+VCF_mito_indels <- fread('data/GVCFall_mitoINDELs.table', header = TRUE, fill=TRUE, na.strings=c("","NA"), sep = "\t")
 dim(VCF_mito_snps)
-#dim(VCF_mito_indels)
-#VCF_mito <- rbind(VCF_mito_snps, VCF_mito_indels)
-#VCF_mito$Variant <- factor(c(rep("SNPs", dim(VCF_mito_snps)[1]), rep("Indels", dim(VCF_mito_indels)[1])))
+dim(VCF_mito_indels)
+VCF_mito <- rbind(VCF_mito_snps, VCF_mito_indels)
+VCF_mito$Variant <- factor(c(rep("SNPs", dim(VCF_mito_snps)[1]), rep("Indels", dim(VCF_mito_indels)[1])))
 
-VCF_Wb_snps <- fread('GVCFall_WbSNPs.table', header = TRUE, fill=TRUE, na.strings=c("","NA"), sep = "\t")
-#VCF_Wb_indels <- fread('GVCFall_WbINDELs.table', header = TRUE, fill=TRUE, na.strings=c("","NA"), sep = "\t")
-dim(VCF_Wb_snps)
-#dim(VCF_Wb_indels)
-#VCF_Wb <- rbind(VCF_Wb_snps, VCF_Wb_indels)
-#VCF_Wb$Variant <- factor(c(rep("SNPs", dim(VCF_Wb_snps)[1]), rep("Indels", dim(VCF_Wb_indels)[1])))
+VCF_wb_snps <- fread('data/GVCFall_WbSNPs.table', header = TRUE, fill=TRUE, na.strings=c("","NA"), sep = "\t")
+VCF_wb_indels <- fread('data/GVCFall_WbINDELs.table', header = TRUE, fill=TRUE, na.strings=c("","NA"), sep = "\t")
+dim(VCF_wb_snps)
+dim(VCF_wb_indels)
+VCF_wb <- rbind(VCF_wb_snps, VCF_wb_indels)
+VCF_wb$Variant <- factor(c(rep("SNPs", dim(VCF_wb_snps)[1]), rep("Indels", dim(VCF_wb_indels)[1])))
+
 
 snps <- '#A9E2E4'
-#indels <- '#F4CCCA'
+indels <- '#F4CCCA'
+
 fun_variant_summaries <- function(data, title){
   # gatk hardfilter: SNP & INDEL QUAL < 0
   QUAL_quant <- quantile(data$QUAL, c(.01,.99), na.rm=T)
-  QUAL <- ggplot(data, aes(x=log10(QUAL))) + geom_density(alpha=.3, fill = '#A9E2E4') +
+  
+  QUAL <-
+    ggplot(data, aes(x=log10(QUAL), fill=Variant)) +
+    geom_density(alpha=.3) +
     geom_vline(xintercept=0, size=0.7, col="red") +
     geom_vline(xintercept=c(log10(QUAL_quant[2]), log10(QUAL_quant[3])), size=0.7, col="blue") +
     #xlim(0,10000) +
-    theme_bw() + labs(title=paste0(title,": QUAL"))
+    theme_bw() +
+    labs(title=paste0(title,": QUAL"))
   
   
   # DP doesnt have a hardfilter
   DP_quant <- quantile(data$DP, c(.01,.99), na.rm=T)
-  DP <- ggplot(data, aes(x=log10(DP))) + geom_density(alpha=0.3, fill = '#A9E2E4') +
+  
+  DP <-
+    ggplot(data, aes(x=log10(DP), fill=Variant)) +
+    geom_density(alpha=0.3) +
     geom_vline(xintercept=log10(DP_quant), col="blue") +
-    theme_bw() + labs(title=paste0(title,": DP"))
+    theme_bw() +
+    labs(title=paste0(title,": DP"))
   
   # gatk hardfilter: SNP & INDEL QD < 2
   QD_quant <- quantile(data$QD, c(.01,.99), na.rm=T)
-  QD <- ggplot(data, aes(x=QD)) + geom_density(alpha=.3, fill = '#A9E2E4') +
+  
+  QD <-
+    ggplot(data, aes(x=QD, fill=Variant)) +
+    geom_density(alpha=.3) +
     geom_vline(xintercept=2, size=0.7, col="red") +
     geom_vline(xintercept=QD_quant, size=0.7, col="blue") +
-    theme_bw() + labs(title=paste0(title,": QD"))
+    theme_bw() +
+    labs(title=paste0(title,": QD"))
   
   # gatk hardfilter: SNP FS > 60, INDEL FS > 200
   FS_quant <- quantile(data$FS, c(.01,.99), na.rm=T)
-  FS <- ggplot(data, aes(x=log10(FS))) + geom_density(alpha=.3, fill = '#A9E2E4') +
-    geom_vline(xintercept=log10(60), size=0.7, col="red") +
+  
+  FS <-
+    ggplot(data, aes(x=log10(FS), fill=Variant)) +
+    geom_density(alpha=.3) +
+    geom_vline(xintercept=c(log10(60), log10(200)), size=0.7, col="red") +
     geom_vline(xintercept=log10(FS_quant), size=0.7, col="blue") +
     #xlim(0,250) +
-    theme_bw() + labs(title=paste0(title,": FS"))
+    theme_bw() +
+    labs(title=paste0(title,": FS"))
   
   # gatk hardfilter: SNP & INDEL MQ < 30
   MQ_quant <- quantile(data$MQ, c(.01,.99), na.rm=T)
-  MQ <- ggplot(data, aes(x=MQ)) + geom_density(alpha=.3, fill = '#A9E2E4') +
+  
+  MQ <-
+    ggplot(data, aes(x=MQ, fill=Variant)) + geom_density(alpha=.3) +
     geom_vline(xintercept=40, size=0.7, col="red") +
     geom_vline(xintercept=MQ_quant, size=0.7, col="blue") +
-    theme_bw() + labs(title=paste0(title,": MQ"))
+    theme_bw() +
+    labs(title=paste0(title,": MQ"))
   
   # gatk hardfilter: SNP MQRankSum < -20
   MQRankSum_quant <- quantile(data$MQRankSum, c(.01,.99), na.rm=T)
-  MQRankSum <- ggplot(data, aes(x=log10(MQRankSum))) + geom_density(alpha=.3, fill = '#A9E2E4') +
+  
+  MQRankSum <-
+    ggplot(data, aes(x=log10(MQRankSum), fill=Variant)) + geom_density(alpha=.3) +
     geom_vline(xintercept=log10(-20), size=0.7, col="red") +
     geom_vline(xintercept=log10(MQRankSum_quant), size=0.7, col="blue") +
-    theme_bw() + labs(title=paste0(title,": MQRankSum"))
+    theme_bw() +
+    labs(title=paste0(title,": MQRankSum"))
   
   
   # gatk hardfilter: SNP SOR < 4 , INDEL SOR > 10
   SOR_quant <- quantile(data$SOR, c(.01, .99), na.rm=T)
-  SOR <- ggplot(data, aes(x=SOR)) + geom_density(alpha=.3, fill = '#A9E2E4') +
-    geom_vline(xintercept=3, size=1, colour = 'red') +
+  
+  SOR <-
+    ggplot(data, aes(x=SOR, fill=Variant)) +
+    geom_density(alpha=.3) +
+    geom_vline(xintercept=c(4, 10), size=1, colour = c(snps,indels)) +
     geom_vline(xintercept=SOR_quant, size=0.7, col="blue") +
-    theme_bw() + labs(title=paste0(title,": SOR"))
+    theme_bw() +
+    labs(title=paste0(title,": SOR"))
   
   # gatk hardfilter: SNP ReadPosRankSum <-10 , INDEL ReadPosRankSum < -20
   ReadPosRankSum_quant <- quantile(data$ReadPosRankSum, c(.01,.99), na.rm=T)
-  ReadPosRankSum <- ggplot(data, aes(x=ReadPosRankSum)) + geom_density(alpha=.3, fill = '#A9E2E4') +
-    geom_vline(xintercept=c(-10,10,-20,20), size=1, colour = '#A9E2E4') + xlim(-10, 10) +
+  
+  ReadPosRankSum <-
+    ggplot(data, aes(x=ReadPosRankSum, fill=Variant)) +
+    geom_density(alpha=.3) +
+    geom_vline(xintercept=c(-10,10,-20,20), size=1, colour = c(snps,snps,indels,indels)) +
+    xlim(-10, 10) +
     geom_vline(xintercept=ReadPosRankSum_quant, size=0.7, col="blue") +
-    theme_bw() + labs(title=paste0(title,": ReadPosRankSum"))
+    theme_bw() +
+    labs(title=paste0(title,": ReadPosRankSum"))
   
   
   plot <- QUAL + DP + QD + FS + MQ + MQRankSum + SOR + ReadPosRankSum + plot_layout(ncol=2)
+  
   print(plot)
+  
   ggsave(paste0("plot_",title,"_variant_summaries.png"), height=20, width=15, type="cairo")
   
   
   # generate a table of quantiles for each variant feature
-  QUAL_quant <- data %>% summarise(quants = list(quantile(QUAL, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
+  QUAL_quant <- data %>% group_by(Variant) %>% summarise(quants = list(quantile(QUAL, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
   QUAL_quant$name <- "QUAL"
-  DP_quant <- data %>% summarise(quants = list(quantile(DP, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
+  DP_quant <- data %>% group_by(Variant) %>% summarise(quants = list(quantile(DP, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
   DP_quant$name <- "DP"
-  QD_quant <- data %>% summarise(quants = list(quantile(QD, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
+  QD_quant <- data %>% group_by(Variant) %>% summarise(quants = list(quantile(QD, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
   QD_quant$name <- "QD"
-  FS_quant <- data %>% summarise(quants = list(quantile(FS, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
+  FS_quant <- data %>% group_by(Variant) %>% summarise(quants = list(quantile(FS, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
   FS_quant$name <- "FS"
-  MQ_quant <- data %>% summarise(quants = list(quantile(MQ, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
+  MQ_quant <- data %>% group_by(Variant) %>% summarise(quants = list(quantile(MQ, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
   MQ_quant$name <- "MQ"
-  MQRankSum_quant <- data %>% summarise(quants = list(quantile(MQRankSum, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
+  MQRankSum_quant <- data %>% group_by(Variant) %>% summarise(quants = list(quantile(MQRankSum, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
   MQRankSum_quant$name <- "MQRankSum"
-  SOR_quant <- data %>% summarise(quants = list(quantile(SOR, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
+  SOR_quant <- data %>% group_by(Variant) %>% summarise(quants = list(quantile(SOR, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
   SOR_quant$name <- "SOR"
-  ReadPosRankSum_quant <- data %>% summarise(quants = list(quantile(ReadPosRankSum, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
+  ReadPosRankSum_quant <- data %>% group_by(Variant) %>% summarise(quants = list(quantile(ReadPosRankSum, probs = c(0.01,0.05,0.95,0.99),na.rm=T))) %>% unnest_wider(quants)
   ReadPosRankSum_quant$name <- "ReadPosRankSum"
   
-  quantiles <- bind_rows(QUAL_quant, DP_quant, QD_quant, FS_quant, MQ_quant, MQRankSum_quant, SOR_quant, ReadPosRankSum_quant)
-  quantiles <- quantiles[, c(5, 1, 2, 3, 4)]
-  write_tsv(quantiles, paste0("table_",title,"_variant_quantiles.tsv"))
+  quantiles <- bind_rows(QUAL_quant,DP_quant, QD_quant, FS_quant, MQ_quant, MQRankSum_quant, SOR_quant, ReadPosRankSum_quant)
+  quantiles$name <- c("QUAL_Indels","QUAL_SNPs","DP_indels","DP_SNPs", "QD_indels","QD_SNPs", "FS_indels","FS_SNPs", "MQ_indels","MQ_SNPs", "MQRankSum_indels","MQRankSum_SNPs", "SOR_indels","SOR_SNPs","ReadPosRankSum_indels","ReadPosRankSum_SNPs")
+  
   png(paste0("table_",title,"_variant_quantiles.png"), width=1000,height=500,bg = "white")
   print(quantiles)
   grid.table(quantiles)
   dev.off()
+  
 }
 
-# run mitochondrial variants
-fun_variant_summaries(VCF_mito_snps,"mitochondrial")
-
 # run nuclear variants
-fun_variant_summaries(VCF_nuclear_snps,"nuclear")
-
-# run Wb variants
-fun_variant_summaries(VCF_Wb_snps,"Wb")
+fun_variant_summaries(VCF_nuclear,"nuclear")
+# run mitochondrial variants
+fun_variant_summaries(VCF_mito,"mitochondrial")
+# run wolbachia variants
+fun_variant_summaries(VCF_wb,"wolbachia")
 ```
 ### Attending to the quantiles, thresholds for specific parameters are stablished
 
@@ -518,7 +552,7 @@ bsub.py --done "filter_Wb_GT" 1 filter_mito_GT2 \
 --output ${VCF%.vcf.gz}.WbALL.DPfilterNoCall.vcf"
 ```
 
-### Now we apply a set of standard final filters
+### Now we apply a set of standard filters for population genomics
 
 ```bash
 #Nuclear variants
@@ -589,13 +623,59 @@ vcftools --vcf dirofilaria_immitis.cohort.Wb_variants.final.recode.vcf --keep-on
 vcftools --vcf ${VCF%.vcf.gz}.nuclear_variants.final.recode.vcf --out nuclear --missing-indv
 vcftools --vcf ${VCF%.vcf.gz}.mito_variants.final.recode.vcf --out mito --missing-indv
 vcftools --vcf ${VCF%.vcf.gz}.Wb_variants.final.recode.vcf --out wb --missing-indv
+```
 
-#Let's check the missingess in R
-#It is variable and as expected, some of the sample from Quesland provided high missingess
+### Let's check the missingess in R
 
-#So, let's remove samples for each of the analysis
+```R
+data_nuclear <- read.delim("data/nuclear.imiss", header=T)
+data_mito <- read.delim("data/mito.imiss", header=T)
+data_wb <- read.delim("data/wb.imiss", header=T)
+#crearting the function - per sample
+fun_plot_missingness <- function(data,title) {
+  
+  data <- data %>% separate(INDV, c("country","population","sampletype","sampleID"))
+  count <- data[1,5]
+  
+  plot <- ggplot(data, aes(population, 1-F_MISS)) +
+    geom_boxplot(color = 'brown') +
+    geom_point(size = 1, color = 'brown4') +
+    theme_bw() +
+    labs(x="Region", y="Proportion of total variants present (1-missingness)")+
+    ggtitle(title)
+  print(plot)
+  ggsave(paste0("plot_missingness_figure",title,".png"))
+}
+# plotting for each dataset
+fun_plot_missingness(data_nuclear, "nuclear_variants")
+fun_plot_missingness(data_mito,"mitochondrial_variants")
+fun_plot_missingness(data_wb, "wb_variants")
 
-#From nuclear dataset
+#And now per sample type
+fun_plot_missingness_sampletype <- function(data,title) {
+  
+  data <- data %>% separate(INDV, c("country","population","sampletype","sampleID"))
+  data$sampletype <- gsub('ADF', 'AD', data$sampletype)
+  count <- data[1,5]
+  
+  plot <- ggplot(data, aes(sampletype, 1-F_MISS)) +
+    geom_boxplot(color = 'royalblue') +
+    geom_point(size = 1, color = 'royalblue') +
+    theme_bw() +
+    labs(x="Country", y="Proportion of total variants present (1-missingness)", title=paste0("Variants per sample: ",title, " (n = ", count,")"))
+  print(plot)
+  ggsave(paste0("plot_missingness_sampletype_",title,".png"))
+}
+# plotting for each dataset
+fun_plot_missingness_sampletype(data_nuclear, "nuclear_variants")
+fun_plot_missingness_sampletype(data_mito,"mitochondrial_variants")
+fun_plot_missingness_sampletype(data_wb, "wb_variants")
+```
+
+It is variable and as expected, some of the sample from Quesland provided high missingess
+So, let's remove the following samples for each of the variant subset
+
+#### From nuclear dataset
 AUS_QUE_MFP_001
 AUS_QUE_MFP_002
 AUS_QUE_MFP_003
@@ -609,10 +689,12 @@ AUS_QUE_MFP_010
 AUS_QUE_MFP_011
 AUS_QUE_MFP_012
 CHN_SIC_RNA_001
-#From mitohondrial dataset, we will remove
+
+#### From mitohondrial dataset, we will remove
 AUS_QUE_MFP_007
 AUS_QUE_MFP_012
-#From Wb dataset
+
+#### From Wb dataset
 AUS_QUE_MFP_001
 AUS_QUE_MFP_002
 AUS_QUE_MFP_003
@@ -629,9 +711,9 @@ USA_ARK_MFP_001
 USA_TEN_MFP_001
 USA_TEX_MFP_001
 
-# So now we will generate different sample list for each database and ten evaluate max missiness
+So now we will generate different sample list for each database and ten evaluate max missiness
 
-#For nuclear (n=19) - nuclear_samplelist.keep
+### For nuclear (n=19) - nuclear_samplelist.keep
 AUS_NSW_AD_001
 AUS_NSW_AD_002
 AUS_NSW_AD_003
@@ -651,7 +733,7 @@ USA_MCH_MFP_001
 USA_MIP_MFS_001
 USA_TEN_MFP_001
 USA_TEX_MFP_001
-# For mithochondiral (n=30) - mito_samplelist.keep
+#### For mithochondiral (n=30) - mito_samplelist.keep
 AUS_NSW_AD_001
 AUS_NSW_AD_002
 AUS_NSW_AD_003
@@ -682,7 +764,7 @@ USA_MCH_MFP_001
 USA_MIP_MFS_001
 USA_TEN_MFP_001
 USA_TEX_MFP_001
-# For wb (n=16) - wb_samplelist.keep
+#### For wb (n=16) - wb_samplelist.keep
 AUS_NSW_AD_001
 AUS_NSW_AD_002
 AUS_NSW_AD_003
@@ -701,8 +783,9 @@ USA_LOU_MFS_001
 USA_MCH_MFP_001
 USA_MIP_MFS_001
 
-# So now, selecting those samples with low missiness, let's check different thresholds for each dataset
+### Once we selected those samples with low missiness, let's check different thresholds for each dataset
 
+```bash
 # For nuclear variants
 for i in 0.7 0.8 0.9 1; do
      vcftools --vcf ${VCF%.vcf.gz}.nuclear_variants.final.recode.vcf --keep nuclear_samplelist.keep --max-missing ${i} ;
@@ -765,108 +848,33 @@ done
 # max-missing = 1
 #After filtering, kept 17 out of 32 Individuals
 #After filtering, kept 0 out of a possible 50 Sites
+```
+Selecting a max missingness of 0.8 for uclear and mito, and 0.7 for Wb is sensible
 
-#selecting a max missingness of 0.8 is sensible
-mkdir ../FINAL_SETS/
+```bash
+mkdir ../../FINAL_SETS/
 # For nuclear
 vcftools --vcf ${VCF%.vcf.gz}.nuclear_variants.final.recode.vcf \
      --keep nuclear_samplelist.keep \
      --max-missing 0.8 \
      --recode --recode-INFO-all \
-     --out ../FINAL_SETS/nuclear_samples3x_missing0.8
+     --out ../../FINAL_SETS/nuclear_samples3x_missing0.8
 # For mito
 vcftools --vcf ${VCF%.vcf.gz}.mito_variants.final.recode.vcf \
      --keep mito_samplelist.keep \
      --max-missing 0.8 \
      --recode --recode-INFO-all \
-     --out ../FINAL_SETS/mito_samples3x_missing0.8
+     --out .../../FINAL_SETS/mito_samples3x_missing0.8
 # For wb
 vcftools --vcf ${VCF%.vcf.gz}.Wb_variants.final.recode.vcf \
      --keep wb_samplelist.keep \
      --max-missing 0.7 \
      --recode --recode-INFO-all \
-     --out ../FINAL_SETS/wb_samples3x_missing0.7
-
-#Cheack depth per sample
-
-nameList <- c()
-for (i in 3:147) { # 21 - odd number for 10 samples
-  if (i %% 2==1) nameList <- append(nameList,paste0(i,".mito.DP"))
-}
-
-qlist <- matrix(nrow = 73, ncol = 3) # define number of samples (10 samples here)
-qlist <- data.frame(qlist, row.names=nameList)
-colnames(qlist)<-c('5%', '10%', '99%')
-
-for (i in 1:73) {
-  DP <- read.table(nameList[i], header = T)
-  qlist[i,] <- quantile(DP[,1], c(.05, .1, .99), na.rm=T)
-  d <- density(DP[,1], from=0, to=100, bw=1, na.rm=T)
-  ggplot(DP,aes(x=DP[,1])) +
-    geom_density() +
-    geom_vline(xintercept=c(qlist[i,1],qlist[i,3]), col='red', lwd=1) +
-    theme_bw() +
-    labs(title = paste0("Sample: ",colnames(DP)), x= "Coverage")
-  ggsave(paste0(colnames(DP),"mitoALL.filtered.DP.png"))
-}
-
-
-old <- read.table('D_immitis.cohort.mitoSNPs.filtered.DP.table', header = T)
-new <- read.table('D_immitis.cohort.mitoSNPs_new.filtered.DP.table', header = T)
-
-###MISSINGESS
-data_mito <- read.delim("mito.imiss", header=T)
-data_nuclear <- read.delim("nuclear.imiss", header=T)
-data_wb <- read.delim("wb.imiss", header=T)
-# mito
-fun_plot_missingness <- function(data,title) {
-  
-  data <- data %>% separate(INDV, c("country","population","sampletype","sampleID"))
-  count <- data[1,5]
-
-  plot <- ggplot(data, aes(population, 1-F_MISS)) +
-    geom_boxplot(color = 'brown') +
-    geom_point(size = 1, color = 'brown4') +
-    theme_bw() +
-    labs(x="Region", y="Proportion of total variants present (1-missingness)")
-  print(plot)
-  ggsave(paste0("plot_missingness_figure",title,".png"))
-}
-# nuclear
-
-fun_plot_missingness(data_mito,"mitochondrial_variants")
-fun_plot_missingness(data_nuclear, "nuclear_variants")
-fun_plot_missingness(data_wb, "wb_variants")
-
-#And now per sample site
-fun_plot_missingness_sampletype <- function(data,title) {
-  
-  data <- data %>% separate(INDV, c("country","population","sampletype","sampleID"))
-  data$sampletype <- gsub('ADF', 'AD', data$sampletype)
-  count <- data[1,5]
-  
-  plot <- ggplot(data, aes(sampletype, 1-F_MISS)) +
-    geom_boxplot(color = 'royalblue') +
-    geom_point(size = 1, color = 'royalblue') +
-    theme_bw() +
-    labs(x="Country", y="Proportion of total variants present (1-missingness)", title=paste0("Variants per sample: ",title, " (n = ", count,")"))
-  print(plot)
-  ggsave(paste0("plot_missingness_sampletype_",title,".png"))
-}
-# nuclear
-
-fun_plot_missingness_sampletype(data_mito,"mitochondrial_variants")
-fun_plot_missingness_sampletype(data_nuclear, "nuclear_variants")
-fun_plot_missingness_sampletype(data_wb, "wb_variants")
+     --out ../../FINAL_SETS/wb_samples3x_missing0.7
 ```
+### Also, we will slectct only the variants in the chr 1 to chr4, avoising the chrX and the scaffolds
 
-######################################################################
-
-
-
-
-
-#Also, we will slectct only yhe variants in the chr 1 to chr4, avoising the chrX and the scaffolds
+```bash
 vcftools --vcf ../FINAL_SETS/nuclear_samples3x_missing0.8.recode.vcf \
 --chr dirofilaria_immitis_chr1 \
 --chr dirofilaria_immitis_chr2 \
@@ -880,9 +888,13 @@ vcftools --vcf nuclear_samples3x_missing0.8.chr1to4.recode.vcf --remove-indels
 #> After filtering, kept 216455 out of a possible 312768 Sites
 vcftools --vcf nuclear_samples3x_missing0.8.chr1to4.recode.vcf --keep-only-indels
 #> After filtering, kept 96313 out of a possible 312768 Sites
+```
 
-#Let's do a file with no indels for PCA using variant freq
+### Let's do also a file with no indels for PCA using variant freq
+
+```bash
 vcftools --vcf nuclear_samples3x_missing0.8.chr1to4.recode.vcf \
 --remove-indels \
 --recode --out nuclear_samples3x_missing0.8.chr1to4.NOindels
 #> After filtering, kept 216455 out of a possible 312768 Sites
+```
