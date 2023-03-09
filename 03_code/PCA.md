@@ -232,8 +232,7 @@ colnames(freq.pca.eigenvect) <- str_replace(colnames(freq.pca.eigenvect), 'het',
 allele_freq_PCA <- ggplot(freq.pca.eigenvect, aes(PC1, PC2, col = Population, label = name)) +
   geom_point(size=4) +
   theme_bw() + scale_colour_javier_mitoPCA() +
-  labs(title="Overall_allel_freq",
-       x = paste0("PC1 variance: 54.38%"),
+  labs(x = paste0("PC1 variance: 54.38%"),
        y = paste0("PC2 variance: 15.03%"))
 
 #First we will plot the the zoom on USA samples
