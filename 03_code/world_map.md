@@ -20,7 +20,6 @@ data <- read.delim("region_data.txt", sep="\t", header=T) %>%
 
 data$region <- str_replace(data$region, 'Sydney', 'New South Wales')
 data$region_code <- str_replace(data$region_code, 'SYD', 'NSW')
-data[nrow(data) + 1,] <- c(1, 'China', 'Sichuan', "SIC", 30.813051538095294, 103.22450766942613)
 data$LAT <- as.numeric(data$LAT)
 data$LONG <- as.numeric(data$LONG)
 
