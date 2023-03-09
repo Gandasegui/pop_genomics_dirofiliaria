@@ -451,14 +451,14 @@ bsub.py 1 filter_mitoINDELs "gatk VariantFiltration \
 --output dirofilaria_immitis.cohort.mitoINDELs.filtered.vcf"
 
 #Wolbachia
-bsub.py 1 filter_mitoSNPs "gatk VariantFiltration \
+bsub.py 1 filter_WbSNPs "gatk VariantFiltration \
 --reference ${REFERENCE} \
 --variant dirofilaria_immitis.cohort.WbSNPs.vcf \
 --filter-expression ' QUAL < 30 || DP < 907 || DP > 2984 || MQ < 34.00 || SOR > 6.100 || QD < 1.0 || FS > 72.0 || MQRankSum < -8.1 || ReadPosRankSum < -4.2 || ReadPosRankSum > 3.6 ' \
 --filter-name "SNP_filtered" \
 --output dirofilaria_immitis.cohort.WbSNPs.filtered.vcf"
 
-bsub.py 1 filter_mitoINDELs "gatk VariantFiltration \
+bsub.py 1 filter_WbINDELs "gatk VariantFiltration \
 --reference ${REFERENCE} \
 --variant dirofilaria_immitis.cohort.WbINDELs.vcf \
 --filter-expression 'QUAL < 47 || DP < 1047 || DP > 3310 || MQ < 46.00 || SOR > 6.000 || QD < 1.5 || FS > 42.0 || ReadPosRankSum < -6.5 || ReadPosRankSum > 2.0' \
