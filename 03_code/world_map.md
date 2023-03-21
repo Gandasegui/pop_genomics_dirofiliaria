@@ -1,7 +1,7 @@
 # R script to generate the map wih the locations and the samples
 
 ```R
-library(ggplot2)
+library(tidyverse)
 library(dplyr)
 require(maps)
 library(ggrepel)
@@ -9,8 +9,6 @@ library(patchwork)
 library(ggsci)
 library(ggpubr)
 
-#
-setwd("~/R/diro_newgenome/worldmap")
 # load world data
 world_map <- map_data("world")
 
@@ -57,30 +55,17 @@ scale_colour_javier_PCA <- function(...){
   )
 }
 
-
 # Make the maps
-a <- ggplot() +
+map <- ggplot() +
   geom_polygon(data = world_map, aes(x = world_map$long, y = world_map$lat, group = world_map$group), fill="grey90") +
-  geom_point(data = data, aes(x = LONG, y = LAT, colour = region_code), size=3) +
-  geom_text_repel(data = data, aes(x = LONG, y = LAT, label = paste0(region," (n = ",N,")")), size=3.5) +        
+  geom_point(data = data, aes(x = LONG, y = LAT, colour = region_code), size=2) +
+  geom_text_repel(data = data, aes(x = LONG, y = LAT, label = paste0(region," (n = ",N,")")), size=4 , max.overlaps = Inf) +        
   theme_void() + 
-  labs(colour="", shape="") +
-  ylim(-55,85) +
-  xlim(-21,175) + 
+  theme(legend.position = 'none')+
+  ylim(-55, 90) +
+  labs(colour="", shape="")+
   scale_colour_javier_PCA()
-
-
-b <- ggplot() +
-  geom_polygon(data = states_map, aes(x = states_map$long, y = states_map$lat, group = states_map$group), fill="grey90") +
-  geom_point(data = data2, aes(x = LONG, y = LAT, colour = region_code), size=3) +
-  geom_text_repel(data = data2, aes(x = LONG, y = LAT, label = paste0(region," (n = ",N,")")), size=3.5) +        
-  theme_void() +
-  labs(colour="", shape="") + 
-  scale_colour_javier_PCA()
-
-# And arrange them
-ggarrange(b, a, labels = c("a", "b"), legend = 'none', hjust = -1, vjust = 1)
 
 # save it
-ggsave("worldmap_samplingsites.png", height=4, width=11)
+ggsave("worldmap_samplingsites.png", height=4, width=9)
 ```
