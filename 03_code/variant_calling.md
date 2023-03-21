@@ -756,19 +756,19 @@ for i in 0.7 0.8 0.9 1; do
 done
 
 # max-missing = 0.7
-#After filtering, kept 19 out of 32 Individuals
+#After filtering, kept 19 out of 31 Individuals
 #After filtering, kept 488446 out of a possible 529424 Sites
 
 # max-missing = 0.8
-#After filtering, kept 19 out of 32 Individuals
+#After filtering, kept 19 out of 31 Individuals
 #After filtering, kept 422935 out of a possible 529424 Sites
 
 # max-missing = 0.9
-#After filtering, kept 19 out of 32 Individuals
+#After filtering, kept 19 out of 31 Individuals
 #After filtering, kept 248619 out of a possible 529424 Sites
 
 # max-missing = 1
-#After filtering, kept 19 out of 32 Individuals
+#After filtering, kept 19 out of 31 Individuals
 #After filtering, kept 106209 out of a possible 529424 Sites
 
 # For nuclear variants
@@ -777,19 +777,19 @@ for i in 0.7 0.8 0.9 1; do
 done
 
 # max-missing = 0.7
-#After filtering, kept 30 out of 32 Individuals
+#After filtering, kept 29 out of 31 Individuals
 #After filtering, kept 49 out of a possible 50 Sites
 
 # max-missing = 0.8
-#After filtering, kept 30 out of 32 Individuals
+#After filtering, kept 29 out of 31 Individuals
 #After filtering, kept 49 out of a possible 50 Sites
 
 # max-missing = 0.9
-#After filtering, kept 30 out of 32 Individuals
+#After filtering, kept 29 out of 31 Individuals
 #After filtering, kept 46 out of a possible 50 Sites
 
 # max-missing = 1
-#After filtering, kept 30 out of 32 Individuals
+#After filtering, kept 29 out of 31 Individuals
 #After filtering, kept 39 out of a possible 50 Sites
 
 # For nuclear variants
@@ -798,19 +798,19 @@ for i in 0.7 0.8 0.9 1; do
 done
 
 # max-missing = 0.7
-#After filtering, kept 17 out of 32 Individuals
+#After filtering, kept 16 out of 31 Individuals
 #After filtering, kept 447 out of a possible 974 Sites
 
 # max-missing = 0.8
-#After filtering, kept 17 out of 32 Individuals
+#After filtering, kept 16 out of 31 Individuals
 #After filtering, kept 73 out of a possible 50 Sites
 
 # max-missing = 0.9
-#After filtering, kept 17 out of 32 Individuals
+#After filtering, kept 16 out of 31 Individuals
 #After filtering, kept 8 out of a possible 50 Sites
 
 # max-missing = 1
-#After filtering, kept 17 out of 32 Individuals
+#After filtering, kept 16 out of 31 Individuals
 #After filtering, kept 0 out of a possible 50 Sites
 ```
 Selecting a max missingness of 0.8 for nuclear and mito, and 0.7 for Wb is sensible
