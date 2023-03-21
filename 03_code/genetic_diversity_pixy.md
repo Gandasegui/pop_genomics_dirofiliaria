@@ -348,7 +348,7 @@ plot_2 <- ggplot(pi_data, aes(avg_pi, chr_type, fill=chr_type), guide="none") +
 
 # bring it together
 plot_1 + plot_2 +  plot_layout(widths = c(5, 1))
-ggsave("plots_genomewide_and_density_Pi.png", width=9, height=6)
+ggsave("FigS7_plots_genomewide_and_density_Pi.png", width=9, height=6)
 
 #Now a boxplot of the pi value per population
 
@@ -374,7 +374,7 @@ boxplot_pi <- ggplot(pi_data, aes(pop, avg_pi, col=pop)) +
 
 boxplot_pi
 
-ggsave("plots_boxplot_pop_Pi.png", width=4, height=4)
+ggsave("Fig2c_plots_boxplot_pop_Pi.png", width=4, height=4)
 
 #let's check the statistical significance of the differences between pi values
 #Let's explore the normality
@@ -417,7 +417,6 @@ pi_data_ITL <- pi_data %>%
   filter(chromosome != 'chrX')
 
 
-bartlett.test(avg_pi~pop, data = pi_data)
 ```
 
 # Dxy and Fst
@@ -910,5 +909,5 @@ boxplot_pi_usa_sampletype <- ggplot(pi_data, aes(pop, avg_pi, col=pop, shape = p
 #and arranging
 ggarrange(boxplot_pi_usa_pop, boxplot_pi_usa_sampletype, labels = c('a', 'b'),
           ncol = 2, widths =  c(1.5, 1))
-ggsave("plots_diversity_USA.png", width=9, height=5.5)
+ggsave("FigS8_plots_diversity_USA.png", width=9, height=5.5)
 ```
