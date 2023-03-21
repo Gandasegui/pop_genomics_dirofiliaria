@@ -237,6 +237,9 @@ allele_freq_PCA <- ggplot(freq.pca.eigenvect, aes(PC1, PC2, col = Population, la
   theme(legend.position="none")+
   labs(x = paste0("PC1 variance: 54.38%"),
        y = paste0("PC2 variance: 15.03%"))
+       
+allele_freq_PCA
+ggsave('Figures/Fig2b_PCA_nuc.png')
 
 #First we will plot the the zoom on USA samples
 #With sampletype 
@@ -278,7 +281,7 @@ hetero <- ggplot(freq.pca.eigenvect,aes(PC1, PC2, col = Heterozygosity, shape = 
 
 ggarrange(stype, dp, miss, hetero, nrow = 2, common.legend = F, 
           labels=c("a",'b', 'c', 'd'), vjust = 1, ncol = 2)
-ggsave("Figures/FigS4_PCA_DP_MISS_HET.jpg", height = 8, width = 9) 
+ggsave("Figures/FigS6_PCA_DP_MISS_HET.jpg", height = 8, width = 9) 
 ```
 
 ### Now let's run the PCA using genotypes in the mito and Wb variants
@@ -367,7 +370,7 @@ wb_PC1 <- ggplot(data,aes(EV1, EV2, col = POPULATION, label = POPULATION)) +
 
 ggarrange(mito_PC1, wb_PC1, nrow = 1, common.legend = T, 
           labels=c("a",'b'), vjust = 1, ncol = 2)
-ggsave("Figures/FigS3_PCA_mito_wb.jpg", height = 5.5, width = 9)
+ggsave("Figures/FigS5_PCA_mito_wb.jpg", height = 5.5, width = 9)
 ```
 ### Now let's look for variants that can allow us to differenciated the AUS samples
 
