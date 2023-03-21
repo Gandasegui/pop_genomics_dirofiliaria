@@ -673,7 +673,10 @@ fun_plot_missingness_sampletype(data_wb, "wb_variants")
 ```
 
 It is variable and as expected, some of the sample from Quesland provided high missingess
+
 So now we will generate different sample list for each database and ten evaluate max missiness
+
+Also, let's remove the Chinise sample
 
 ```bash
 # For nuclear (n=19) - nuclear_samplelist.keep
@@ -712,7 +715,6 @@ AUS_QUE_MFP_008
 AUS_QUE_MFP_009
 AUS_QUE_MFP_010
 AUS_QUE_MFP_011
-CHN_SIC_RNA_001
 ITL_PAV_ADF_001
 USA_ARK_MFP_001
 USA_GEO_ADF_001
@@ -733,7 +735,6 @@ AUS_NSW_AD_002
 AUS_NSW_AD_003
 AUS_NSW_AD_004
 AUS_NSW_AD_005
-CHN_SIC_RNA_001
 ITL_PAV_ADF_001
 USA_GEO_ADF_001
 USA_GEO_MFP_001
