@@ -67,5 +67,5 @@ map <- ggplot() +
   scale_colour_javier_PCA()
 
 # save it
-ggsave("worldmap_samplingsites.png", height=4, width=9)
+ggsave("Fig2a_worldmap_samplingsites.png", height=4, width=9)
 ```
