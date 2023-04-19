@@ -294,7 +294,7 @@ bsub.py --queue long --threads 20 60 busco_di_purge_eukaryota_odb10 \
     "busco --in purged.fa  --out BUSCO_di_purge_genome_eukaryota_odb10 --mode genome --lineage_dataset /nfs/users/nfs_s/sd21/lustre_link/databases/busco/eukaryota_odb10 --cpu 20 -f -r"
 
 # C:95.3%[S:94.9%,D:0.4%],F:2.0%,M:2.7%,n:255
-
+```
 
 
 
@@ -453,3 +453,22 @@ ggsave("chromosomes.dotplot.pdf")
 ```
 
 
+
+
+
+
+
+
+
+samtools faidx dimmitis_WSI_2.0.fa dirofilaria_immitis_chrX:1-12771261 > dirofilaria_immitis_chrX:1-12771261.fa
+samtools faidx dimmitis_WSI_2.0.fa
+
+
+samtools faidx dimmitis_WSI_2.0.fa dirofilaria_immitis_chrX:12771262-28232375 > dirofilaria_immitis_chrX:12771262-28232375.fa
+
+
+samtools faidx dimmitis_WSI_2.0.fa dirofilaria_immitis_chr4 > dirofilaria_immitis_chr4.fa
+fastaq reverse_complement dirofilaria_immitis_chr4.fa dirofilaria_immitis_chr4.rc.fa
+
+cat dirofilaria_immitis_chr4.rc.fa dirofilaria_immitis_chrX:1-12771261.fa > new_X.fa
+fastaq to_fasta new_X.fa new_X.fix.fa

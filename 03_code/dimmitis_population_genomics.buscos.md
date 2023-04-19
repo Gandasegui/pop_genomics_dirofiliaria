@@ -87,3 +87,22 @@ bsub.py --queue long --threads 20 60 busco_di_ragtag_eukaryota_odb10 \
     "busco --in ragtag.scaffold.fasta --out BUSCO_di_ragtag_genome_eukaryota_odb10 --mode genome --lineage_dataset /nfs/users/nfs_s/sd21/lustre_link/databases/busco/eukaryota_odb10 --cpu 20 -f -r"
 
 ```
+
+
+## dimmitis_WSI_2.2
+```bash
+ln -s ../dimmitis_WSI_2.2.fa .
+
+bsub.py --queue long --threads 20 60 busco_dimmitis_WSI_2.2_nematoda_odb10 \
+    "busco --in dimmitis_WSI_2.2.fa --out BUSCO_dimmitis_WSI_2.2_genome_nematoda_odb10 --mode genome --lineage_dataset /nfs/users/nfs_s/sd21/lustre_link/databases/busco/nematoda_odb10 --cpu 20 -f -r"
+
+bsub.py --queue long --threads 20 60 busco_dimmitis_WSI_2.2_nematoda_odb10_augustus \
+    "busco --in dimmitis_WSI_2.2.fa --out BUSCO_dimmitis_WSI_2.2_genome_nematoda_odb10_augustus --mode genome --lineage_dataset /nfs/users/nfs_s/sd21/lustre_link/databases/busco/nematoda_odb10 --cpu 20 -f -r --augustus"
+
+bsub.py --queue long --threads 20 60 busco_dimmitis_WSI_2.2_nematoda_odb10_augustus_long \
+    "busco --in dimmitis_WSI_2.2.fa --out BUSCO_dimmitis_WSI_2.2_genome_nematoda_odb10_augustus_long --mode genome --lineage_dataset /nfs/users/nfs_s/sd21/lustre_link/databases/busco/nematoda_odb10 --cpu 20 -f -r --augustus --long"
+
+bsub.py --queue long --threads 20 60 busco_dimmitis_WSI_2.2_eukaryota_odb10 \
+    "busco --in dimmitis_WSI_2.2.fa --out BUSCO_dimmitis_WSI_2.2_genome_eukaryota_odb10 --mode genome --lineage_dataset /nfs/users/nfs_s/sd21/lustre_link/databases/busco/eukaryota_odb10 --cpu 20 -f -r"
+
+
