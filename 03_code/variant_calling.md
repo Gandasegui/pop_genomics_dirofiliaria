@@ -673,7 +673,10 @@ fun_plot_missingness_sampletype(data_wb, "wb_variants")
 ```
 
 It is variable and as expected, some of the sample from Quesland provided high missingess
+
 So now we will generate different sample list for each database and ten evaluate max missiness
+
+Also, let's remove the Chinise sample
 
 ```bash
 # For nuclear (n=19) - nuclear_samplelist.keep
@@ -712,7 +715,6 @@ AUS_QUE_MFP_008
 AUS_QUE_MFP_009
 AUS_QUE_MFP_010
 AUS_QUE_MFP_011
-CHN_SIC_RNA_001
 ITL_PAV_ADF_001
 USA_ARK_MFP_001
 USA_GEO_ADF_001
@@ -733,7 +735,6 @@ AUS_NSW_AD_002
 AUS_NSW_AD_003
 AUS_NSW_AD_004
 AUS_NSW_AD_005
-CHN_SIC_RNA_001
 ITL_PAV_ADF_001
 USA_GEO_ADF_001
 USA_GEO_MFP_001
@@ -755,19 +756,19 @@ for i in 0.7 0.8 0.9 1; do
 done
 
 # max-missing = 0.7
-#After filtering, kept 19 out of 32 Individuals
+#After filtering, kept 19 out of 31 Individuals
 #After filtering, kept 488446 out of a possible 529424 Sites
 
 # max-missing = 0.8
-#After filtering, kept 19 out of 32 Individuals
+#After filtering, kept 19 out of 31 Individuals
 #After filtering, kept 422935 out of a possible 529424 Sites
 
 # max-missing = 0.9
-#After filtering, kept 19 out of 32 Individuals
+#After filtering, kept 19 out of 31 Individuals
 #After filtering, kept 248619 out of a possible 529424 Sites
 
 # max-missing = 1
-#After filtering, kept 19 out of 32 Individuals
+#After filtering, kept 19 out of 31 Individuals
 #After filtering, kept 106209 out of a possible 529424 Sites
 
 # For nuclear variants
@@ -776,19 +777,19 @@ for i in 0.7 0.8 0.9 1; do
 done
 
 # max-missing = 0.7
-#After filtering, kept 30 out of 32 Individuals
+#After filtering, kept 29 out of 31 Individuals
 #After filtering, kept 49 out of a possible 50 Sites
 
 # max-missing = 0.8
-#After filtering, kept 30 out of 32 Individuals
+#After filtering, kept 29 out of 31 Individuals
 #After filtering, kept 49 out of a possible 50 Sites
 
 # max-missing = 0.9
-#After filtering, kept 30 out of 32 Individuals
+#After filtering, kept 29 out of 31 Individuals
 #After filtering, kept 46 out of a possible 50 Sites
 
 # max-missing = 1
-#After filtering, kept 30 out of 32 Individuals
+#After filtering, kept 29 out of 31 Individuals
 #After filtering, kept 39 out of a possible 50 Sites
 
 # For nuclear variants
@@ -797,19 +798,19 @@ for i in 0.7 0.8 0.9 1; do
 done
 
 # max-missing = 0.7
-#After filtering, kept 17 out of 32 Individuals
+#After filtering, kept 16 out of 31 Individuals
 #After filtering, kept 447 out of a possible 974 Sites
 
 # max-missing = 0.8
-#After filtering, kept 17 out of 32 Individuals
+#After filtering, kept 16 out of 31 Individuals
 #After filtering, kept 73 out of a possible 50 Sites
 
 # max-missing = 0.9
-#After filtering, kept 17 out of 32 Individuals
+#After filtering, kept 16 out of 31 Individuals
 #After filtering, kept 8 out of a possible 50 Sites
 
 # max-missing = 1
-#After filtering, kept 17 out of 32 Individuals
+#After filtering, kept 16 out of 31 Individuals
 #After filtering, kept 0 out of a possible 50 Sites
 ```
 Selecting a max missingness of 0.8 for nuclear and mito, and 0.7 for Wb is sensible

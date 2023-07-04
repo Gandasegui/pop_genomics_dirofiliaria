@@ -81,6 +81,7 @@ nuc_PC3 <- ggplot(data,aes(EV3, EV4, col = POPULATION, label = POPULATION)) +
        y = paste0("PC4 variance: ",round(pca$varprop[4]*100,digits=2),"%"))
 ```
 We have obeserved some substructure that can be due to seq noise
+
 We will findout what is going on
 
 ### Let's use SNPs freqfr PCA and extract tecnical information:
@@ -100,13 +101,13 @@ We will findout what is going on
 nuc_vcf<-readLines("data/nuclear_samples3x_missing0.8.chr1to4.NOindels.recode.vcf")
 nuc_vcf_data<-read.table("data/nuclear_samples3x_missing0.8.chr1to4.NOindels.recode.vcf", 
                          stringsAsFactors = FALSE)
-#filter for the columns names
+# filter for the columns names
 nuc_vcf<-nuc_vcf[-(grep("CHROM",nuc_vcf)+1):-(length(nuc_vcf))]
 vcf_names<-unlist(strsplit(nuc_vcf[length(nuc_vcf)],"\t"))
 names(nuc_vcf_data)<-vcf_names
 
 #To obtain parameters, let's use the vcfR package
-#Let's extract the depth for each sample
+#Let's extrct the depth for each sample
 vcf_file <- system.file("extdata", "data/nuclear_samples3x_missing0.8.chr1to4.NOindels.recode.vcf", package = "pinfsc50")
 vcf <- read.vcfR("data/nuclear_samples3x_missing0.8.chr1to4.NOindels.recode.vcf", verbose = FALSE)
 dp <- extract.gt(vcf, element='DP', as.numeric=TRUE)
@@ -119,8 +120,9 @@ dp[] <- lapply(dp, function(x) {
 #Let's estimate de mean depth and create a dataframe to merge later on
 file_names <- colnames(dp)
 
-#The , an empty df
+#The , I create an empty df
 dp_stats <- data_frame(name = character(), dp_mean = double(), dp_sd = double())
+
 for (i in 1:19) {
   #first, I create the name
   name <- file_names[i]
@@ -153,7 +155,7 @@ colnames(missing) <- c('name', 'miss')
 
 #And read the table
 het <- read.table('data/nuclear_final.het', header = T) %>%
-  select(INDV, O.HOM.)
+  select(INDV, 'F')
 colnames(het) <- c('name', 'het')
 
 #Let's run the PCA using SNP frequencies
@@ -232,8 +234,12 @@ colnames(freq.pca.eigenvect) <- str_replace(colnames(freq.pca.eigenvect), 'het',
 allele_freq_PCA <- ggplot(freq.pca.eigenvect, aes(PC1, PC2, col = Population, label = name)) +
   geom_point(size=4) +
   theme_bw() + scale_colour_javier_mitoPCA() +
+  theme(legend.position="none")+
   labs(x = paste0("PC1 variance: 54.38%"),
        y = paste0("PC2 variance: 15.03%"))
+       
+allele_freq_PCA
+ggsave('Figures/Fig2b_PCA_nuc.png')
 
 #First we will plot the the zoom on USA samples
 #With sampletype 
@@ -275,14 +281,13 @@ hetero <- ggplot(freq.pca.eigenvect,aes(PC1, PC2, col = Heterozygosity, shape = 
 
 ggarrange(stype, dp, miss, hetero, nrow = 2, common.legend = F, 
           labels=c("a",'b', 'c', 'd'), vjust = 1, ncol = 2)
-ggsave("Figures/FigS4_PCA_DP_MISS_HET.jpg", height = 8, width = 9) 
+ggsave("Figures/FigS6_PCA_DP_MISS_HET.jpg", height = 8, width = 9) 
 ```
 
 ### Now let's run the PCA using genotypes in the mito and Wb variants
 
 ```R
-#PCA on mitochondiral variants
-snpgdsClose(genofile)
+#snpgdsClose(genofile)
 vcf.in <- "data/mito_samples3x_missing0.8.recode.vcf"
 gds<-snpgdsVCF2GDS(vcf.in, "mtDNA.gds", method="biallelic.only")
 genofile <- snpgdsOpen(gds)
@@ -321,6 +326,7 @@ mito_PC1 <- ggplot(data,aes(EV1, EV2, col = POPULATION, label = POPULATION)) +
   labs(x = paste0("PC1 variance: ",round(pca$varprop[1]*100,digits=2),"%"),
        y = paste0("PC2 variance: ",round(pca$varprop[2]*100,digits=2),"%"))
 
+##############################
 
 #PCA on wb variants
 snpgdsClose(genofile)
@@ -364,5 +370,29 @@ wb_PC1 <- ggplot(data,aes(EV1, EV2, col = POPULATION, label = POPULATION)) +
 
 ggarrange(mito_PC1, wb_PC1, nrow = 1, common.legend = T, 
           labels=c("a",'b'), vjust = 1, ncol = 2)
-ggsave("Figures/FigS3_PCA_mito_wb.jpg", height = 5.5, width = 9)
+ggsave("Figures/FigS5_PCA_mito_wb.jpg", height = 5.5, width = 9)
 ```
+### Now let's look for variants that can allow us to differenciated the AUS samples
+
+```R
+#Read two times the vcf file, first for the columns names, second for the data
+mit_vcf<-readLines("data/mito_samples3x_missing0.8.recode.vcf")
+mit_vcf_data<-read.table("data/mito_samples3x_missing0.8.recode.vcf", 
+                         stringsAsFactors = FALSE)
+
+vcf <- read.vcfR("data/mito_samples3x_missing0.8.recode.vcf", verbose = FALSE)
+mito_gen_AUS <- as_tibble(extract.gt(vcf)) %>% select(contains('AUS'))
+# filter for the columns names
+mit_vcf<-mit_vcf[-(grep("CHROM",mit_vcf)+1):-(length(mit_vcf))]
+vcf_names<-unlist(strsplit(mit_vcf[length(mit_vcf)],"\t"))
+names(mit_vcf_data)<-vcf_names
+mit_vcf_data <- as_tibble(mit_vcf_data)
+colnames(mit_vcf_data) <- str_remove(colnames(mit_vcf_data), '#')
+mito_gen_AUS <-mit_vcf_data %>%
+  select(POS, REF, ALT) %>%
+  cbind(., mito_gen_AUS) %>%
+  as_tibble()
+
+write_csv(mito_gen_AUS, 'mito_AUS_genotypes.csv')
+ ```
+ The differences in the PCA are due to missing SNPs and other variants, but nothing to discriminate between pops

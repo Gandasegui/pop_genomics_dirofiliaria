@@ -318,7 +318,7 @@ pi_data_pop_sex_median <- pi_data %>%
 # Groups:   pop [3]
 pop   chr_type     median
 <chr> <chr>         <dbl>
-  1 AUS   autosome 0.0000391 
+1 AUS   autosome 0.0000391 
 2 AUS   sexchr   0.00000376
 3 ITL   autosome 0.0000864 
 4 ITL   sexchr   0.0000322 
@@ -348,21 +348,78 @@ plot_2 <- ggplot(pi_data, aes(avg_pi, chr_type, fill=chr_type), guide="none") +
 
 # bring it together
 plot_1 + plot_2 +  plot_layout(widths = c(5, 1))
-ggsave("plots_genomewide_and_density_Pi.png", width=9, height=6)
+ggsave("FigS7_plots_genomewide_and_density_Pi.png", width=9, height=6)
 
 #Now a boxplot of the pi value per population
-ggplot(pi_data, aes(pop, avg_pi, col=pop)) +
+
+scale_colour_javi <- function(...){
+  ggplot2:::manual_scale(
+    'colour', 
+    values = setNames(
+      c('dodgerblue4', 'turquoise4', 'darkgoldenrod1'), 
+      c('AUS', 'ITL', 'USA')), 
+    ...
+  )
+}
+
+boxplot_pi <- ggplot(pi_data, aes(pop, avg_pi, col=pop)) +
   geom_jitter(size = 1, alpha = 0.5) +
-  geom_boxplot(fill=NA, col="black", outline=FALSE) +
+  geom_boxplot(fill=NA, col="black") +
   labs(x = "Population" , y = "Nucleotide diversity (Pi)", colour = "Population") +
   theme_bw() +
+  theme(legend.position = "none") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  scale_color_npg() +
+  scale_colour_javi ()+
   ylim(0, 0.003)
 
-ggsave("plots_boxplot_pop_Pi.png", width=4, height=4)
+boxplot_pi
+
+ggsave("Fig2c_plots_boxplot_pop_Pi.png", width=4, height=4)
+
+#let's check the statistical significance of the differences between pi values
+#Let's explore the normality
+pi_data %>% filter(chromosome != 'chrX') %>%
+ggplot(., aes(x = avg_pi, colour = pop)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ pop)
+#Confirm the absence of normality by shapiro
+pi_data_AUS <- pi_data_AUS %>% filter(chromosome != 'chrX')
+AUS_shapiro <- shapiro.test(pi_data_AUS$avg_pi)
+print(AUS_shapiro)#W = 0.69062, p-value < 2.2e-16
+pi_data_ITL <- pi_data_ITL %>% filter(chromosome != 'chrX')
+ITL_shapiro <- shapiro.test(pi_data_ITL$avg_pi)
+print(ITL_shapiro)#W = 0.69994, p-value < 2.2e-16
+pi_data_USA <- pi_data_USA %>% filter(chromosome != 'chrX')
+USA_shapiro <- shapiro.test(pi_data_USA$avg_pi)
+print(USA_shapiro)#W = 0.90598, p-value < 2.2e-16
+
+#Willcoxson test for everyone
+wilcox.test(pi_data_AUS$avg_pi, pi_data_ITL$avg_pi)
+#W = 152048, p-value = 1.16e-06
+wilcox.test(pi_data_AUS$avg_pi, pi_data_USA$avg_pi)
+#W = 41288, p-value < 2.2e-16
+wilcox.test(pi_data_ITL$avg_pi, pi_data_USA$avg_pi)
+#W = 50720, p-value < 2.2e-16
+
+#let's generate some dataframe for the estatistics
+# subset
+pi_data_AUS <- pi_data %>%
+  filter(pop=="AUS") %>%
+  filter(chromosome != 'chrX')
+
+pi_data_USA <- pi_data %>%
+  filter(pop=="USA") %>%
+  filter(chromosome != 'chrX') 
+
+pi_data_ITL <- pi_data %>%
+  filter(pop=="ITL") %>%
+  filter(chromosome != 'chrX')
+
+
 ```
-### Dxy and Fst
+
+# Dxy and Fst
 
 ```R
 # load data
@@ -411,7 +468,7 @@ data %>%
 # Groups:   comparison [3]
 comparison data_type   median
 <chr>      <chr>        <dbl>
-  1 AUS_v_ITL  Dxy       0.000608
+1 AUS_v_ITL  Dxy       0.000608
 2 AUS_v_ITL  Fst       0.876   
 3 AUS_v_USA  Dxy       0.000643
 4 AUS_v_USA  Fst       0.327   
@@ -423,7 +480,7 @@ comparison data_type   median
 
 # plot 1 - genome wide plots per comparison
 plot_1 <- data %>%
-  filter(data_type=='Dxy')%>%
+  filter(data_type =='Dxy')%>%
   ggplot(., aes(position*100000, value, col=chromosome)) +
   geom_point(size=1) +
   facet_grid(comparison~.) +
@@ -445,9 +502,174 @@ plot_2 <- data %>%
   labs(x="Dxy", y="Density")
 
 # bring it together
-plot_1 + plot_2 +  plot_layout(widths = c(5, 1))
+dxy_plot <- plot_1 + plot_2 +  plot_layout(widths = c(5, 1))
 ggsave("plots_genomewide_and_density_dxy.png", width=9, height=6)
 
+#some additional plots
+boxplot_dxy <- data %>%
+  filter(data_type =='Dxy') %>% 
+  ggplot(., aes(comparison, value, col=comparison)) +
+  geom_jitter(size = 1, alpha = 0.5) +
+  geom_boxplot(fill=NA, col="black") +
+  labs(x = "Population" , y = "Dxy", colour = "Population") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+density_dxy <- data %>%
+  filter(data_type =='Dxy') %>% 
+  ggplot(., aes(x=value, group = comparison, fill=comparison)) +
+  geom_density(adjust=1.5, alpha=.4) +
+  labs(x = "Dxy" , y = "density", colour = "Comparison") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+scatter_dxy_a <-  data %>%
+  filter(data_type == 'Dxy') %>%
+  as.data.frame() %>%
+  select('position', 'comparison', 'value', 'chromosome')%>%
+  as_tibble() %>%
+  pivot_wider(names_from = comparison, values_from = value) %>%
+  ggplot(., aes(x=AUS_v_ITL, y = AUS_v_USA, col=chromosome)) +
+  geom_point(alpha=.4) +
+  labs(x = "AUS_v_ITL" , y = "AUS_v_USA", colour = "Comparison") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  
+scatter_dxy_b <-  data %>%
+  filter(data_type == 'Dxy') %>%
+  as.data.frame() %>%
+  select('position', 'comparison', 'value', 'chromosome')%>%
+  as_tibble() %>%
+  pivot_wider(names_from = comparison, values_from = value) %>%
+  ggplot(., aes(x=AUS_v_ITL, y = ITL_v_USA, col=chromosome)) +
+  geom_point(alpha=.4) +
+  labs(x = "AUS_v_ITL" , y = "ITL_v_USA", colour = "Comparison") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+genome_pos_dxy_a <-  data %>%
+  filter(data_type == 'Dxy') %>%
+  as.data.frame() %>%
+  select('position', 'comparison', 'value', 'chromosome')%>%
+  as_tibble() %>%
+  pivot_wider(names_from = comparison, values_from = value) %>%
+  mutate("xx" = AUS_v_ITL - AUS_v_USA,
+         "yy" = AUS_v_ITL - ITL_v_USA) %>%
+  ggplot(., aes(position*100000, xx, col=chromosome)) +
+  geom_point(size=1) +
+  scale_color_tron() +
+  theme_bw() +
+  theme(legend.position="top", 
+        legend.title = element_blank()) +
+  labs(x="Position", y="AUS vs ITL - AUS vs USA")
+
+genome_pos_dxy_b <-  data %>%
+  filter(data_type == 'Dxy') %>%
+  as.data.frame() %>%
+  select('position', 'comparison', 'value', 'chromosome')%>%
+  as_tibble() %>%
+  pivot_wider(names_from = comparison, values_from = value) %>%
+  mutate("xx" = AUS_v_ITL - AUS_v_USA,
+         "yy" = AUS_v_ITL - ITL_v_USA) %>%
+  ggplot(., aes(position*100000, yy, col=chromosome)) +
+  geom_point(size=1) +
+  scale_color_tron() +
+  theme_bw() +
+  theme(legend.position="top", 
+        legend.title = element_blank()) +
+  labs(x="Position", y="AUS vs ITL - ITL vs USA")
+
+genome_pos_dxy_aa <-  data %>%
+  filter(data_type == 'Dxy') %>%
+  as.data.frame() %>%
+  select('position', 'comparison', 'value', 'chromosome')%>%
+  as_tibble() %>%
+  pivot_wider(names_from = comparison, values_from = value) %>%
+  mutate("xx" = AUS_v_ITL / AUS_v_USA,
+         "yy" = AUS_v_ITL / ITL_v_USA) %>%
+  ggplot(., aes(position*100000, xx, col=chromosome)) +
+  geom_point(size=1) +
+  scale_color_tron() +
+  theme_bw() +
+  theme(legend.position="top", 
+        legend.title = element_blank()) +
+  labs(x="Position", y="AUS vs ITL / AUS vs USA")
+
+genome_pos_dxy_bb <-  data %>%
+  filter(data_type == 'Dxy') %>%
+  as.data.frame() %>%
+  select('position', 'comparison', 'value', 'chromosome')%>%
+  as_tibble() %>%
+  pivot_wider(names_from = comparison, values_from = value) %>%
+  mutate("xx" = AUS_v_ITL / AUS_v_USA,
+         "yy" = AUS_v_ITL / ITL_v_USA) %>%
+  ggplot(., aes(position*100000, yy, col=chromosome)) +
+  geom_point(size=1) +
+  scale_color_tron() +
+  theme_bw() +
+  theme(legend.position="top", 
+        legend.title = element_blank()) +
+  labs(x="Position", y="AUS vs ITL / ITL vs USA")
+
+genome_pos_dxy_cc <-  data %>%
+  filter(data_type == 'Dxy') %>%
+  as.data.frame() %>%
+  select('position', 'comparison', 'value', 'chromosome')%>%
+  as_tibble() %>%
+  pivot_wider(names_from = comparison, values_from = value) %>%
+  mutate("xx" = AUS_v_ITL / AUS_v_USA,
+         "yy" = AUS_v_ITL / ITL_v_USA,
+         "zz" = AUS_v_USA / ITL_v_USA) %>%
+  ggplot(., aes(position*100000, zz, col=chromosome)) +
+  geom_point(size=1) +
+  scale_color_tron() +
+  theme_bw() +
+  theme(legend.position="top", 
+        legend.title = element_blank()) +
+  labs(x="Position", y="AUS_v_USA / ITL vs USA")
+  
+ggarrange(scatter_dxy_a, scatter_dxy_b, common.legend = T)
+ggarrange(genome_pos_dxy_a, genome_pos_dxy_b, common.legend = T, ncol = 1)
+ggarrange(genome_pos_dxy_aa, genome_pos_dxy_bb, genome_pos_dxy_cc,
+          common.legend = T, ncol = 1)
+
+ggsave("nosequecosa.png", width=9, height=6)
+#Trying to plot lines
+#getting chr positions
+chr <- c('X', '1', '2', '3', '4')
+
+for (i in chr) {
+  x <- data %>%
+    filter(chromosome == paste0('chr', i))
+  print(quantile(x$position))
+  }
+
+data$comparison <- str_replace_all(data$comparison, '_', ' ')
+data$comparison <- str_replace_all(data$comparison, 'v', 'vs')
+
+dxy_lineplot <- data %>%
+  filter(data_type=='Dxy')%>%
+  ggplot(., aes(position*100000, value, col=comparison)) +
+  geom_point(size=0.2, alpha = 0.1) +
+  geom_vline(xintercept=c(281*100000,
+                          438*100000,
+                          590*100000,
+                          740*100000),
+                          size=1, linetype="dashed", col='grey41')+
+  annotate(geom="text", x=140*100000, y=0.004, label="ChrX")+
+  annotate(geom="text", x=359.5*100000, y=0.004, label="Chr1")+
+  annotate(geom="text", x=545*100000, y=0.004, label="Chr2")+
+  annotate(geom="text", x=665*100000, y=0.004, label="Chr3")+
+  annotate(geom="text", x=810.5*100000, y=0.004, label="Chr4")+
+  geom_line() +
+  scale_color_brewer(type = 'div', palette = 'Accent') +
+  theme_bw() +
+  theme(legend.position="top", 
+        legend.title = element_blank()) +
+  labs(x="Genomic Position", y="Dxy")
+
+dxy_lineplot
 # Plotting Fst
 
 # plot 1 - genome wide plots per population
@@ -476,4 +698,216 @@ plot_2 <- data %>%
 # bring it together
 plot_1 + plot_2 +  plot_layout(widths = c(5, 1))
 ggsave("plots_genomewide_and_density_fst.png", width=9, height=6)
+```
+
+### Now let's ecplore the american populations
+
+
+```bash
+#Let's select only the USA samples
+cd ${WORKING_DIR}/04_VARIANTS/FINAL_SETS/
+
+vcftools --gzvcf nuclearSNPssandINVARIANTs.chrxto4.recode.vcf.gz \
+--keep USA_samplelist.keep \
+--recode --out USA_nuclearSNPssandINVARIANTs.chrxto4
+
+bgzip USA_nuclearSNPssandINVARIANTs.chrxto4.recode.vcf;
+tabix -p vcf USA_nuclearSNPssandINVARIANTs.chrxto4.recode.vcf.gz
+
+#Now, let's run pixy
+VCF=${WORKING_DIR}/04_VARIANTS/FINAL_SETS/USA_nuclearSNPssandINVARIANTs.chrxto4.recode.vcf.gz
+
+#usa_pop.list
+USA_ARK_MFP_001	ARK
+USA_GEO_ADF_001	GEO
+USA_GEO_MFP_001	GEO
+USA_GEO_MFP_002	GEO
+USA_GEO_MFS_001	GEO
+USA_GEO_MFS_002	GEO
+USA_ILL_MFS_001	ILL
+USA_LOU_MFP_001	LOU
+USA_LOU_MFS_001	LOU
+USA_MCH_MFP_001	MCH
+USA_MIP_MFS_001	MIP
+USA_TEN_MFP_001	TEN
+USA_TEX_MFP_001	TEX
+
+#usa_sampletype.list
+USA_ARK_MFP_001	pooled
+USA_GEO_ADF_001	single
+USA_GEO_MFP_001	pooled
+USA_GEO_MFP_002	pooled
+USA_GEO_MFS_001	single
+USA_GEO_MFS_002	single
+USA_ILL_MFS_001	single
+USA_LOU_MFP_001	pooled
+USA_LOU_MFS_001	single
+USA_MCH_MFP_001	pooled
+USA_MIP_MFS_001	single
+USA_TEN_MFP_001	pooled
+USA_TEX_MFP_001	pooled
+
+#and submitting jobs
+bsub.py --queue long --threads 20 20 usa_pop \
+"pixy --stats pi fst dxy \
+--vcf ${VCF} \
+--populations usa_pop.list \
+--window_size 100000 \
+--n_cores 20 \
+--output_prefix usa_pop"
+
+bsub.py --queue long --threads 20 20 usa_sampletype \
+"pixy --stats pi fst dxy \
+--vcf ${VCF} \
+--populations usa_sampletype.list \
+--window_size 100000 \
+--n_cores 20 \
+--output_prefix usa_sampletype"
+```
+
+### Now, let's import into R and generate some plots
+
+```R
+##### PI #####
+
+# Per population
+# get nucleotide diversity (pi) data from pixy output
+pi_data <- read.table("data/usa_pop_pi.txt", header=T)
+pi_data$chromosome <- str_remove(pi_data$chromosome, 'dirofilaria_immitis_')
+
+# filter pi data to remove small scaffolds not in the linkage groups, and to number the rows per group to help with plotting
+pi_data <- pi_data %>%
+  group_by(pop) %>%
+  mutate(position = 1:n())
+
+#LEt's add the chr type variable
+pi_data <- pi_data %>%
+  mutate(chr_type = ifelse(str_detect(chromosome, "X"), "sexchr", "autosome"))
+
+# calculate the median Pi and checking the ratio of sex-to-autosome diversity. Should be about 0.75, as Trichuris is XX/XY
+pi_data_sex_median <- pi_data %>%
+  group_by(chr_type) %>%
+  summarise(median = median(avg_pi, na.rm = TRUE))
+'
+# A tibble: 2 × 2
+chr_type   median
+<chr>       <dbl>
+1 autosome 0.000697
+2 sexchr   0.000368
+'
+# 0.000133 / 0.000269 = 0.527977 (far off 0.75 expected of diversity on sex chromosome relative to autosome)
+
+pi_data_pop_sex_median <- pi_data %>%
+  group_by(pop, chr_type) %>%
+  summarise(median = median(avg_pi, na.rm = TRUE))
+'
+# A tibble: 16 × 3
+# Groups:   pop [8]
+pop   chr_type   median
+<chr> <chr>       <dbl>
+  1 ARK   autosome 0.00134 
+2 ARK   sexchr   0.000651
+3 GEO   autosome 0.000781
+4 GEO   sexchr   0.000457
+5 ILL   autosome 0.000261
+6 ILL   sexchr   0.000130
+7 LOU   autosome 0.000869
+8 LOU   sexchr   0.000451
+9 MCH   autosome 0.00117 
+10 MCH   sexchr   0.000581
+11 MIP   autosome 0.000235
+12 MIP   sexchr   0.000146
+13 TEN   autosome 0.00126 
+14 TEN   sexchr   0.000610
+15 TEX   autosome 0.000681
+16 TEX   sexchr   0.000277
+'
+
+#Now a boxplot of the pi value per population
+pi_data$pop <- factor(pi_data$pop, 
+                           levels = c('MCH', 'ILL', 'TEN', 'ARK', 
+                                      'GEO', 'MIP', 'TEX', 'LOU'))
+
+scale_colour_javier_PCA <- function(...){
+  ggplot2:::manual_scale(
+    'colour', 
+    values = setNames(
+      c('royalblue1', 'blue3',
+        'turquoise3',
+        'green',
+        'lightgoldenrod1', 'darkgoldenrod1', 'orange', 'orange2',
+        'orange3', 'tomato1', 'red2', 'darkred'), 
+      c('QUE', 'NSW', 
+        'PAV',
+        'SIC',
+        'MCH', 'ILL', 'TEN', 'ARK', 
+        'GEO', 'MIP', 'TEX', 'LOU')), 
+    ...
+  )
+}
+
+boxplot_pi_usa_pop <- ggplot(pi_data, aes(pop, avg_pi, col=pop)) +
+  geom_jitter(size = 1, alpha = 0.5) +
+  geom_boxplot(fill=NA, col="grey15", linewidth = 1) +
+  labs(x = "Population" , y = "Nucleotide diversity (Pi)") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  scale_color_npg() +
+  ylim(0, 0.003) + scale_colour_javier_PCA()
+
+#Per sample type
+# get nucleotide diversity (pi) data from pixy output
+pi_data <- read.table("data/usa_sampletype_pi.txt", header=T)
+pi_data$chromosome <- str_remove(pi_data$chromosome, 'dirofilaria_immitis_')
+
+# filter pi data to remove small scaffolds not in the linkage groups, and to number the rows per group to help with plotting
+pi_data <- pi_data %>%
+  group_by(pop) %>%
+  mutate(position = 1:n())
+
+#LEt's add the chr type variable
+pi_data <- pi_data %>%
+  mutate(chr_type = ifelse(str_detect(chromosome, "X"), "sexchr", "autosome"))
+# calculate the median Pi and checking the ratio of sex-to-autosome diversity. Should be about 0.75, as Trichuris is XX/XY
+pi_data_sex_median <- pi_data %>%
+  group_by(chr_type) %>%
+  summarise(median = median(avg_pi, na.rm = TRUE))
+'
+# A tibble: 2 × 2
+chr_type   median
+<chr>       <dbl>
+1 autosome 0.000704
+2 sexchr   0.000378
+'
+# 0.000378 / 0.000704 = 0.5369318 (far off 0.75 expected of diversity on sex chromosome relative to autosome)
+
+pi_data_pop_sex_median <- pi_data %>%
+  group_by(pop, chr_type) %>%
+  summarise(median = median(avg_pi, na.rm = TRUE))
+'
+# A tibble: 4 × 3
+# Groups:   pop [2]
+  pop    chr_type   median
+  <chr>  <chr>       <dbl>
+1 pooled autosome 0.000881
+2 pooled sexchr   0.000480
+3 single autosome 0.000539
+4 single sexchr   0.000315
+'
+#Now a boxplot of the pi value per population
+boxplot_pi_usa_sampletype <- ggplot(pi_data, aes(pop, avg_pi, col=pop, shape = pop)) +
+  geom_jitter(size = 2, alpha = 0.5) +
+  geom_boxplot(fill=NA, col="grey15", linewidth = 1) +
+  labs(x = "Population" , y = "Nucleotide diversity (Pi)") +
+  theme_bw() +
+  scale_color_tron()+
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ylim(0, 0.003)
+
+#and arranging
+ggarrange(boxplot_pi_usa_pop, boxplot_pi_usa_sampletype, labels = c('a', 'b'),
+          ncol = 2, widths =  c(1.5, 1))
+ggsave("FigS8_plots_diversity_USA.png", width=9, height=5.5)
 ```
