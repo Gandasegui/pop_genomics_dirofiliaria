@@ -6,6 +6,7 @@
 
 ## Comparsions of Di to Bm and Ov
 ### Dotplots
+
 ```bash
 cd /nfs/users/nfs_s/sd21/lustre_link/dirofilaria_immitis/COMPARATIVE_GENOMICS
 
@@ -53,12 +54,12 @@ tdata<-data[data$V17 > 300,  ]
 vdata<-aggregate(data$V5, by=list(data$V4), max)
 
 plot_di_v_bm <- 
-    ggplot()+
+    ggplot() +
     geom_segment(data=data,mapping=aes(y=V10/1e6, yend=V11/1e6, x=V15/1e6, xend=V16/1e6, colour=V4)) +
-    theme_bw()+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none")+
-    geom_point(data=tdata, aes(x=V15/1e6, y=V10/1e6, colour=V4), size=1)+
-    geom_point(data=tdata, aes(x=V16/1e6, y=V11/1e6, colour=V4), size=1)+
-    labs(title = "A", y="Brugia malayi chromosomes (Mb)", x="Dirofilaria immitis chromosomes (Mb)", colour="Chromosome")+
+    theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none") +
+    geom_point(data=tdata, aes(x=V15/1e6, y=V10/1e6, colour=V4), size=1) +
+    geom_point(data=tdata, aes(x=V16/1e6, y=V11/1e6, colour=V4), size=1) +
+    labs(title = "A", y="Brugia malayi chromosomes (Mb)", x="Dirofilaria immitis chromosomes (Mb)", colour="Chromosome") +
     scale_colour_viridis(discrete = TRUE, option="plasma") + facet_grid(V1~V4, scales="free")
 
 

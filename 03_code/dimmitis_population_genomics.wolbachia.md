@@ -72,7 +72,6 @@ bsub.py --threads 10 10 pilon "java -jar ~sd21/lustre_link/software/GENOME_IMPRO
 
 
 
-
 ## mitochondrial genome
 - checked for the mitochondrial genome in the ICBAS_JMDir_1.0 however it was missing
 - there are no nanopore reads, so will just use one of the two mtDNA genomes from the Di2.2 assembly
@@ -82,5 +81,11 @@ bsub.py --threads 10 10 pilon "java -jar ~sd21/lustre_link/software/GENOME_IMPRO
 wget http://nematodes.org/downloads/959nematodegenomes/blast/db2/Dirofilaria_immitis_mDi_Athens_and_mDi_Pavia_2.1.fna.gz
 
 samtools faidx Dirofilaria_immitis_mDi_Athens_and_mDi_Pavia_2.1.fna mDi_Athens_2.1 > mDi_Athens_2.1.fa
+
+```
+
+
+```R
+library(ggplot2)
 
 ```
