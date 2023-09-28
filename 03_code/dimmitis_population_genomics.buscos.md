@@ -104,5 +104,67 @@ bsub.py --queue long --threads 20 60 busco_dimmitis_WSI_2.2_nematoda_odb10_augus
 
 bsub.py --queue long --threads 20 60 busco_dimmitis_WSI_2.2_eukaryota_odb10 \
     "busco --in dimmitis_WSI_2.2.fa --out BUSCO_dimmitis_WSI_2.2_genome_eukaryota_odb10 --mode genome --lineage_dataset /nfs/users/nfs_s/sd21/lustre_link/databases/busco/eukaryota_odb10 --cpu 20 -f -r"
+```
 
 
+
+
+
+```
+bsub.py --queue long --threads 20 60 busco_di_merged_nematoda_odb10 \
+    "busco --in merged.fa --out BUSCO_di_merged_genome_nematoda_odb10 --mode genome --lineage_dataset /nfs/users/nfs_s/sd21/lustre_link/databases/busco/nematoda_odb10 --cpu 20 -f -r"
+
+
+bsub.py --queue long --threads 20 60 busco_ICBAS_plus_recovered_Di_nematoda_odb10     "busco --in ICBAS_plus_recovered_Di.fa --out BUSCO_ICBAS_plus_recovered_Di_genome_nematoda_odb10 --mode genome --lineage_dataset /nfs/users/nfs_s/sd21/lustre_link/databases/busco/nematoda_odb10 --cpu 20 -f -r"
+```
+
+
+## Missing BUSCOs
+
+```
+
+ln -s ../../BUSCO/BUSCO_di_wbp17_genome_nematoda_odb10/run_nematoda_odb10/full_table.tsv nDi.2.2_full_table.tsv
+
+ln -s ../../BUSCO/BUSCO_di_ICBAS_JMDir_1.0_genome_nematoda_odb10/run_nematoda_odb10/full_table.tsv ICBAS_JMDir_1.0_full_table.tsv
+
+ln -s ../../BUSCO/BUSCO_dimmitis_WSI_2.2_genome_nematoda_odb10/run_nematoda_odb10/full_table.tsv WSI_2.2_full_table.tsv
+
+ln -s ../GENOME_MERGE/BUSCO_di_merged_genome_nematoda_odb10/run_nematoda_odb10/full_table.tsv merged_full_table.tsv
+
+ln -s ../RAGTAG_OV_DI/BUSCO_ICBAS_plus_recovered_Di_genome_nematoda_odb10/run_nematoda_odb10/full_table.tsv ICBAS_plus_recovered_full_table.tsv
+
+
+
+for i in *_full_table.tsv; do
+    echo ${i%_full_table.tsv} > ${i%full_table.tsv}_missing.txt
+    cat ${i} | cut -f1 | grep -v "#" | sort | uniq | while read ID; do 
+        grep -m1 "${ID}" ${i} | awk '{if($2=="Missing") print "1"; else print "0"}'; 
+        done >> ${i%full_table.tsv}_missing.txt; 
+    done
+
+echo "ID" > row_ids.txt
+cat nDi.2.2_full_table.tsv | cut -f1 | grep -v "#" | sort | uniq >> row_ids.txt
+
+
+
+paste row_ids.txt nDi.2.2__missing.txt ICBAS_JMDir_1.0__missing.txt ICBAS_plus_recovered__missing.txt merged__missing.txt WSI_2.2__missing.txt > missing_data.txt
+
+paste row_ids.txt nDi.2.2__missing.txt ICBAS_JMDir_1.0__missing.txt > missing_data.txt2
+
+paste row_ids.txt ICBAS_JMDir_1.0__missing.txt ICBAS_plus_recovered__missing.txt merged__missing.txt WSI_2.2__missing.txt > missing_data.txt
+
+R
+
+library(UpSetR)
+
+data <- read.table("missing_data.txt", header=T)
+
+
+awk '{print $1,$2,$3,$4,$5}' OFS="\t" Orthogroups.GeneCount.tsv | awk 'NR>1 {for(i=2;i<=NF;i++)if($i>0)$i=1}1' OFS="\t" > orthogroups.data
+
+Orthogroup	PREVIOUS	PUBLISHED	ce.proteins.unique	hc_new_annotation.proteins.unique
+OG0000000	0	0	1	0
+OG0000001	0	0	1	0
+OG0000002	0	0	1	0
+OG0000003	0	0	1	0
+OG0000004	1	1	0	1
